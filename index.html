@@ -243,7 +243,8 @@ const firebaseConfig = {
     storageBucket: "quizblast-78d17.firebasestorage.app",
     messagingSenderId: "700009971518",
     appId: "1:700009971518:web:b17daa61e26b4e2542366f",
-    measurementId: "G-BS5KCF7QGQ"
+    measurementId: "G-BS5KCF7QGQ",
+    databaseURL: "https://quizblast-78d17-default-rtdb.firebaseio.com"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -313,7 +314,7 @@ function renderLB(elId,scores){
   $(elId).innerHTML=sorted.slice(0,8).map(([n,sc],i)=>`
     <div class="lbi" style="animation-delay:${i*.07}s">
       <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;width:36px;text-align:center;color:${i===0?'#ffd700':i===1?'#c0c0c0':i===2?'#cd7f32':'#8888aa'}">${MEDALS[i]||i+1}</div>
-      <div style="flex:1;font-weight:800">${n}${n===G.name?' (you)':''}</div>
+      <div style="flex:1;font-weight:800">${n.replace('_','.')}${n.replace('_','.')===G.name?' (you)':''}</div>
       <div style="font-family:'Boogaloo',cursive;font-size:1.3rem;color:#ffd23f">${sc}pts</div>
     </div>`).join('')||'<p style="color:var(--muted)">No scores yet</p>';
 }
@@ -373,7 +374,7 @@ async function doGenerate(){
     const qs = JSON.parse(jsonMatch[0]);
 
     const code=Array.from({length:4},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random()*23)]).join('');
-    G.code=code;G.questions=qs;G.numQ=numQ;G.timeLimit=tl;G.currentQ=0;G.scores={[G.name]:0};
+    G.code=code;G.questions=qs;G.numQ=numQ;G.timeLimit=tl;G.currentQ=0;G.scores={[G.name.replace('.','_')]:0};
     
     await DB.set('sessions/'+code, {
         host: G.name,
@@ -382,7 +383,7 @@ async function doGenerate(){
         currentQ: 0,
         timeLimit: tl,
         totalQ: numQ,
-        players: {[G.name]: 0},
+        players: {[G.name.replace('.','_')]: 0},
         createdAt: Date.now()
     });
 
@@ -399,7 +400,7 @@ function syncGame(s) {
     
     if(s.phase === 'lobby') {
         const ps = Object.keys(s.players || {});
-        $('lplayers').innerHTML = ps.map(p => `<span class="chip">${p===s.host?'👑 '+p:'🎮 '+p}</span>`).join('');
+        $('lplayers').innerHTML = ps.map(p => `<span class="chip">${p.replace('_','.')===s.host?'👑 '+p.replace('_','.'):'🎮 '+p.replace('_','.')}</span>`).join('');
         $('pcnt').textContent = ps.length;
         $('startbtn').disabled = ps.length < 1;
     } 
@@ -436,7 +437,7 @@ function showQ(idx, isHost){
   $(isHost?'agh':'agp').innerHTML=q.options.map((o,i)=>
     `<button class="abtn" data-c="${i}" ${isHost?'disabled':''} onclick="${isHost?'':'pick('+i+')'}">${LETTERS[i]}. ${o}</button>`
   ).join('');
-  if(!isHost){$('amsg').style.display='none';$('agp').style.display='grid';$('myscore').textContent=(G.scores[G.name]||0)+'pts';}
+  if(!isHost){$('amsg').style.display='none';$('agp').style.display='grid';$('myscore').textContent=(G.scores[G.name.replace('.','_')]||0)+'pts';}
   goScreen(isHost?'s-qh':'s-qp');
   startTimer(isHost);
 }
@@ -518,7 +519,7 @@ async function doNext(){
 
 function showFinalScreen(){
   const sorted=Object.entries(G.scores).sort((a,b)=>b[1]-a[1]);
-  $('finalmsg').textContent=sorted[0]?.[0]===G.name?'🏆 You won! 🎉' : '🏆 '+sorted[0]?.[0]+' wins!';
+  $('finalmsg').textContent=sorted[0]?.[0]?.replace('_','.')===G.name?'🏆 You won! 🎉' : '🏆 '+sorted[0]?.[0]?.replace('_','.')+' wins!';
   renderLB('flb',G.scores); goScreen('s-final'); confetti(); snd('win');
 }
 
