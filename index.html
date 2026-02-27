@@ -1,594 +1,541 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>⚡ QuizBlast</title>
-  <link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;700;800;900&display=swap"
-    rel="stylesheet">
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0
-    }
-
-    :root {
-      --bg: #0d0d1a;
-      --card: #16213e;
-      --accent1: #ff6b35;
-      --accent2: #ffd23f;
-      --accent3: #06d6a0;
-      --text: #f0f0ff;
-      --muted: #8888aa
-    }
-
-    body {
-      font-family: 'Nunito', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden
-    }
-
-    @keyframes fall {
-      to {
-        transform: translateY(110vh) rotate(720deg);
-        opacity: 0
-      }
-    }
-
-    @keyframes popIn {
-      from {
-        transform: scale(0);
-        opacity: 0
-      }
-
-      to {
-        transform: scale(1);
-        opacity: 1
-      }
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(-20px)
-      }
-
-      to {
-        opacity: 1;
-        transform: translateX(0)
-      }
-    }
-
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(16px)
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0)
-      }
-    }
-
-    @keyframes pulse {
-
-      0%,
-      100% {
-        filter: drop-shadow(0 0 20px rgba(255, 107, 53, .4))
-      }
-
-      50% {
-        filter: drop-shadow(0 0 40px rgba(255, 210, 63, .7))
-      }
-    }
-
-    @keyframes dot {
-
-      0%,
-      80%,
-      100% {
-        transform: scale(.6);
-        opacity: .4
-      }
-
-      40% {
-        transform: scale(1);
-        opacity: 1
-      }
-    }
-
-    .screen {
-      display: none;
-      max-width: 500px;
-      margin: 0 auto;
-      padding: 20px 16px 50px;
-      flex-direction: column;
-      align-items: center;
-      animation: fadeUp .4s ease
-    }
-
-    .screen.active {
-      display: flex
-    }
-
-    .logo {
-      font-family: 'Boogaloo', cursive;
-      font-size: clamp(2.8rem, 12vw, 4.5rem);
-      background: linear-gradient(135deg, #ff6b35, #ffd23f);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 6px;
-      animation: pulse 3s ease-in-out infinite;
-      text-align: center
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid rgba(255, 255, 255, .08);
-      border-radius: 20px;
-      padding: 22px;
-      width: 100%;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, .3);
-      margin-bottom: 12px
-    }
-
-    .lbl {
-      display: block;
-      font-weight: 700;
-      font-size: .78rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 6px
-    }
-
-    input,
-    select {
-      width: 100%;
-      background: rgba(255, 255, 255, .06);
-      border: 1.5px solid rgba(255, 255, 255, .12);
-      border-radius: 12px;
-      padding: 11px 15px;
-      color: var(--text);
-      font-family: 'Nunito', sans-serif;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color .2s
-    }
-
-    input:focus,
-    select:focus {
-      border-color: var(--accent1)
-    }
-
-    select option {
-      background: var(--card)
-    }
-
-    .btn {
-      display: block;
-      width: 100%;
-      max-width: 380px;
-      padding: 14px 28px;
-      border-radius: 50px;
-      border: none;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 900;
-      font-size: 1rem;
-      cursor: pointer;
-      color: #fff;
-      margin-bottom: 10px;
-      transition: all .18s;
-      letter-spacing: .3px
-    }
-
-    .btn:hover {
-      transform: translateY(-2px)
-    }
-
-    .btn:active {
-      transform: scale(.96)
-    }
-
-    .btn:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-      transform: none
-    }
-
-    .btn-o {
-      background: linear-gradient(135deg, #ff6b35, #ff8c42);
-      box-shadow: 0 6px 24px rgba(255, 107, 53, .4)
-    }
-
-    .btn-p {
-      background: linear-gradient(135deg, #a855f7, #7c3aed);
-      box-shadow: 0 6px 24px rgba(168, 85, 247, .4)
-    }
-
-    .btn-g {
-      background: linear-gradient(135deg, #06d6a0, #059669);
-      box-shadow: 0 6px 24px rgba(6, 214, 160, .4)
-    }
-
-    .btn-x {
-      background: rgba(255, 255, 255, .08);
-      box-shadow: none
-    }
-
-    .code {
-      font-family: 'Boogaloo', cursive;
-      font-size: clamp(3.5rem, 18vw, 6.5rem);
-      background: linear-gradient(135deg, #ffd23f, #ff6b35);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: 12px;
-      text-align: center;
-      animation: pulse 2s ease-in-out infinite;
-      margin: 8px 0
-    }
-
-    .chip {
-      display: inline-block;
-      background: rgba(255, 255, 255, .1);
-      border: 1px solid rgba(255, 255, 255, .2);
-      border-radius: 50px;
-      padding: 5px 14px;
-      font-weight: 700;
-      font-size: .88rem;
-      animation: popIn .3s cubic-bezier(.68, -.55, .27, 1.55)
-    }
-
-    .pill {
-      padding: 5px 13px;
-      border-radius: 50px;
-      font-size: .83rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all .2s;
-      border: 1.5px solid rgba(255, 255, 255, .12);
-      background: rgba(255, 255, 255, .06);
-      color: var(--text);
-      display: inline-block;
-      margin: 3px
-    }
-
-    .pill.on {
-      background: rgba(255, 107, 53, .2);
-      border-color: #ff6b35;
-      color: #ff6b35
-    }
-
-    .agrid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 11px;
-      width: 100%;
-      margin: 8px 0
-    }
-
-    .abtn {
-      padding: 16px 12px;
-      border-radius: 14px;
-      border: 2px solid transparent;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 800;
-      font-size: .92rem;
-      cursor: pointer;
-      color: #fff;
-      transition: all .25s;
-      min-height: 70px;
-      line-height: 1.3;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center
-    }
-
-    .abtn:active {
-      transform: scale(.94)
-    }
-
-    .abtn.sel {
-      border: 3px solid #ffd23f;
-      transform: scale(1.04);
-      box-shadow: 0 0 0 3px #ffd23f55
-    }
-
-    .abtn.ok {
-      background: linear-gradient(135deg, #06d6a0, #059669) !important;
-      border: 3px solid #06d6a0;
-      transform: scale(1.04)
-    }
-
-    .abtn.no {
-      opacity: .35
-    }
-
-    .abtn[data-c="0"] {
-      background: linear-gradient(135deg, #e63946, #c1121f)
-    }
-
-    .abtn[data-c="1"] {
-      background: linear-gradient(135deg, #2196f3, #1565c0)
-    }
-
-    .abtn[data-c="2"] {
-      background: linear-gradient(135deg, #ff9800, #e65100)
-    }
-
-    .abtn[data-c="3"] {
-      background: linear-gradient(135deg, #4caf50, #1b5e20)
-    }
-
-    .twrap {
-      position: relative;
-      width: 100px;
-      height: 100px;
-      margin: 0 auto 14px
-    }
-
-    .twrap svg {
-      transform: rotate(-90deg)
-    }
-
-    .tnum {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-family: 'Boogaloo', cursive;
-      font-size: 2.2rem
-    }
-
-    .qtext {
-      font-weight: 800;
-      font-size: clamp(1.05rem, 4vw, 1.3rem);
-      text-align: center;
-      line-height: 1.4;
-      margin: 10px 0 14px;
-      min-height: 52px
-    }
-
-    .barwrap {
-      margin-bottom: 10px
-    }
-
-    .barlbl {
-      display: flex;
-      justify-content: space-between;
-      font-weight: 700;
-      margin-bottom: 4px;
-      font-size: .92rem
-    }
-
-    .barbg {
-      background: rgba(255, 255, 255, .08);
-      border-radius: 50px;
-      height: 13px;
-      overflow: hidden
-    }
-
-    .barfill {
-      height: 100%;
-      border-radius: 50px;
-      transition: width 1s cubic-bezier(.34, 1.56, .64, 1);
-      width: 0
-    }
-
-    .lbi {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      background: rgba(255, 255, 255, .05);
-      border-radius: 14px;
-      margin-bottom: 6px;
-      animation: slideIn .4s ease both
-    }
-
-    .badge {
-      padding: 3px 12px;
-      border-radius: 50px;
-      background: rgba(255, 107, 53, .15);
-      color: #ff6b35;
-      border: 1px solid rgba(255, 107, 53, .3);
-      font-weight: 700;
-      font-size: .78rem
-    }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      margin-bottom: 6px
-    }
-
-    .dots {
-      display: flex;
-      gap: 6px;
-      justify-content: center;
-      margin: 10px 0
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent1)
-    }
-
-    .dot:nth-child(1) {
-      animation: dot 1.2s ease-in-out 0s infinite
-    }
-
-    .dot:nth-child(2) {
-      animation: dot 1.2s ease-in-out .2s infinite
-    }
-
-    .dot:nth-child(3) {
-      animation: dot 1.2s ease-in-out .4s infinite
-    }
-
-    .hr {
-      border: none;
-      border-top: 1px solid rgba(255, 255, 255, .08);
-      margin: 14px 0
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--card);
-      border: 1px solid rgba(255, 255, 255, .15);
-      border-radius: 50px;
-      padding: 11px 26px;
-      font-weight: 700;
-      white-space: nowrap;
-      z-index: 9999;
-      animation: popIn .3s ease;
-      display: none;
-      max-width: 90vw;
-      text-align: center
-    }
-
-    .funmsg {
-      font-size: 1.8rem;
-      text-align: center;
-      margin: 6px 0 14px;
-      animation: popIn .4s ease
-    }
-
-    .cr {
-      color: #444466;
-      font-size: .72rem;
-      text-align: center;
-      letter-spacing: .5px;
-      margin-top: 24px
-    }
-
-    .note {
-      color: var(--muted);
-      font-size: .8rem;
-      text-align: center;
-      padding: 10px 14px;
-      background: rgba(255, 255, 255, .04);
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, .08);
-      margin-bottom: 12px
-    }
-  </style>
-
-  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚡ QuizBlast</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0d1a;--card:#16213e;--accent1:#ff6b35;--accent2:#ffd23f;--accent3:#06d6a0;--text:#f0f0ff;--muted:#8888aa}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{filter:drop-shadow(0 0 20px rgba(255,107,53,.4))}50%{filter:drop-shadow(0 0 40px rgba(255,210,63,.7))}}
+@keyframes dot{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+.screen{display:none;max-width:500px;margin:0 auto;padding:20px 16px 50px;flex-direction:column;align-items:center;animation:fadeUp .4s ease}
+.screen.active{display:flex}
+.logo{font-family:'Boogaloo',cursive;font-size:clamp(2.8rem,12vw,4.5rem);background:linear-gradient(135deg,#ff6b35,#ffd23f);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;animation:pulse 3s ease-in-out infinite;text-align:center}
+.card{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:22px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.3);margin-bottom:12px}
+.lbl{display:block;font-weight:700;font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+input,select{width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);border-radius:12px;padding:11px 15px;color:var(--text);font-family:'Nunito',sans-serif;font-size:1rem;outline:none;transition:border-color .2s}
+input:focus,select:focus{border-color:var(--accent1)}
+select option{background:var(--card)}
+.btn{display:block;width:100%;max-width:380px;padding:14px 28px;border-radius:50px;border:none;font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;cursor:pointer;color:#fff;margin-bottom:10px;transition:all .18s;letter-spacing:.3px}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-o{background:linear-gradient(135deg,#ff6b35,#ff8c42);box-shadow:0 6px 24px rgba(255,107,53,.4)}
+.btn-p{background:linear-gradient(135deg,#a855f7,#7c3aed);box-shadow:0 6px 24px rgba(168,85,247,.4)}
+.btn-g{background:linear-gradient(135deg,#06d6a0,#059669);box-shadow:0 6px 24px rgba(6,214,160,.4)}
+.btn-x{background:rgba(255,255,255,.08);box-shadow:none}
+.code{font-family:'Boogaloo',cursive;font-size:clamp(3.5rem,18vw,6.5rem);background:linear-gradient(135deg,#ffd23f,#ff6b35);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:12px;text-align:center;animation:pulse 2s ease-in-out infinite;margin:8px 0}
+.chip{display:inline-block;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:50px;padding:5px 14px;font-weight:700;font-size:.88rem;animation:popIn .3s cubic-bezier(.68,-.55,.27,1.55)}
+.pill{padding:5px 13px;border-radius:50px;font-size:.83rem;font-weight:700;cursor:pointer;transition:all .2s;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:var(--text);display:inline-block;margin:3px}
+.pill.on{background:rgba(255,107,53,.2);border-color:#ff6b35;color:#ff6b35}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;width:100%;margin:8px 0}
+.abtn{padding:16px 12px;border-radius:14px;border:2px solid transparent;font-family:'Nunito',sans-serif;font-weight:800;font-size:.92rem;cursor:pointer;color:#fff;transition:all .25s;min-height:70px;line-height:1.3;display:flex;align-items:center;justify-content:center;text-align:center}
+.abtn:active{transform:scale(.94)}
+.abtn.sel{border:3px solid #ffd23f;transform:scale(1.04);box-shadow:0 0 0 3px #ffd23f55}
+.abtn.ok{background:linear-gradient(135deg,#06d6a0,#059669)!important;border:3px solid #06d6a0;transform:scale(1.04)}
+.abtn.no{opacity:.35}
+.abtn[data-c="0"]{background:linear-gradient(135deg,#e63946,#c1121f)}
+.abtn[data-c="1"]{background:linear-gradient(135deg,#2196f3,#1565c0)}
+.abtn[data-c="2"]{background:linear-gradient(135deg,#ff9800,#e65100)}
+.abtn[data-c="3"]{background:linear-gradient(135deg,#4caf50,#1b5e20)}
+.twrap{position:relative;width:100px;height:100px;margin:0 auto 14px}
+.twrap svg{transform:rotate(-90deg)}
+.tnum{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Boogaloo',cursive;font-size:2.2rem}
+.qtext{font-weight:800;font-size:clamp(1.05rem,4vw,1.3rem);text-align:center;line-height:1.4;margin:10px 0 14px;min-height:52px}
+.barwrap{margin-bottom:10px}
+.barlbl{display:flex;justify-content:space-between;font-weight:700;margin-bottom:4px;font-size:.92rem}
+.barbg{background:rgba(255,255,255,.08);border-radius:50px;height:13px;overflow:hidden}
+.barfill{height:100%;border-radius:50px;transition:width 1s cubic-bezier(.34,1.56,.64,1);width:0}
+.lbi{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.05);border-radius:14px;margin-bottom:6px;animation:slideIn .4s ease both}
+.badge{padding:3px 12px;border-radius:50px;background:rgba(255,107,53,.15);color:#ff6b35;border:1px solid rgba(255,107,53,.3);font-weight:700;font-size:.78rem}
+.row{display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:6px}
+.dots{display:flex;gap:6px;justify-content:center;margin:10px 0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent1)}
+.dot:nth-child(1){animation:dot 1.2s ease-in-out 0s infinite}
+.dot:nth-child(2){animation:dot 1.2s ease-in-out .2s infinite}
+.dot:nth-child(3){animation:dot 1.2s ease-in-out .4s infinite}
+.hr{border:none;border-top:1px solid rgba(255,255,255,.08);margin:14px 0}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid rgba(255,255,255,.15);border-radius:50px;padding:11px 26px;font-weight:700;white-space:nowrap;z-index:9999;animation:popIn .3s ease;display:none;max-width:90vw;text-align:center}
+.funmsg{font-size:1.8rem;text-align:center;margin:6px 0 14px;animation:popIn .4s ease}
+.cr{color:#444466;font-size:.72rem;text-align:center;letter-spacing:.5px;margin-top:24px}
+.note{color:var(--muted);font-size:.8rem;text-align:center;padding:10px 14px;background:rgba(255,255,255,.04);border-radius:12px;border:1px solid rgba(255,255,255,.08);margin-bottom:12px}
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 </head>
-
 <body>
 
-  <div class="screen active" id="s-home">
-    <div style="margin-top:30px"></div>
-    <div class="logo">⚡QuizBlast</div>
-    <p style="color:var(--muted);text-align:center;margin-bottom:28px">The fastest quiz game on the planet 🌍</p>
-    <div class="card">
-      <label class="lbl">Your Nickname</label>
-      <input id="home-name" placeholder="Enter your name..." maxlength="20" autocomplete="off">
-    </div>
-    <button class="btn btn-o" onclick="goHost()">🎮 Host a Game</button>
-    <button class="btn btn-p" onclick="goJoin()">🎯 Join a Game</button>
-    <p style="color:var(--muted);font-size:.78rem;text-align:center">No login needed · Play instantly · Free forever</p>
-    <p class="cr">© 2025 Hossam Genidy · All rights reserved</p>
+<div class="screen active" id="s-home">
+  <div style="margin-top:30px"></div>
+  <div class="logo">⚡QuizBlast</div>
+  <p style="color:var(--muted);text-align:center;margin-bottom:28px">The fastest quiz game on the planet 🌍</p>
+  <div class="card">
+    <label class="lbl">Your Nickname</label>
+    <input id="home-name" placeholder="Enter your name..." maxlength="20" autocomplete="off">
   </div>
+  <button class="btn btn-o" onclick="goHost()">🎮 Host a Game</button>
+  <button class="btn btn-p" onclick="goJoin()">🎯 Join a Game</button>
+  <p style="color:var(--muted);font-size:.78rem;text-align:center">No login needed · Play instantly · Free forever</p>
+  <p class="cr">© 2025 Hossam Genidy · All rights reserved</p>
+</div>
 
-  <div class="screen" id="s-api">
-    <div class="logo" style="font-size:2rem;margin:24px 0 8px">🔑 API Key</div>
-    <div class="card">
-      <p class="note">QuizBlast uses Claude AI to generate questions. You need a free Anthropic API key.<br><a
-          href="https://console.anthropic.com" target="_blank" style="color:var(--accent1)">→ Get your key here
-          (free)</a></p>
-      <label class="lbl">Paste your API Key</label>
-      <input id="api-inp" type="password" placeholder="sk-ant-..." autocomplete="off">
-      <p style="color:var(--muted);font-size:.75rem;margin-top:8px">🔒 Stored only in your browser. Never shared with
-        anyone.</p>
-    </div>
-    <button class="btn btn-o" onclick="saveKey()">✅ Save & Continue</button>
-    <button class="btn btn-x" onclick="goScreen('s-home')">← Back</button>
+<div class="screen" id="s-api">
+  <div class="logo" style="font-size:2rem;margin:24px 0 8px">🔑 API Key</div>
+  <div class="card">
+    <p class="note">QuizBlast uses Claude AI to generate questions. You need a free Anthropic API key.<br><a href="https://console.anthropic.com" target="_blank" style="color:var(--accent1)">→ Get your key here (free)</a></p>
+    <label class="lbl">Paste your API Key</label>
+    <input id="api-inp" type="password" placeholder="sk-ant-..." autocomplete="off">
+    <p style="color:var(--muted);font-size:.75rem;margin-top:8px">🔒 Stored only in your browser. Never shared with anyone.</p>
   </div>
+  <button class="btn btn-o" onclick="saveKey()">✅ Save & Continue</button>
+  <button class="btn btn-x" onclick="goScreen('s-home')">← Back</button>
+</div>
 
-  <div class="screen" id="s-setup">
-    <div class="logo" style="font-size:2rem;margin:20px 0 8px">🎮 Host Setup</div>
-    <div class="card">
-      <label class="lbl">Quiz Topic</label>
-      <input id="topic" value="General Knowledge" placeholder="Any topic...">
-      <div id="pills" style="margin-top:10px"></div>
-    </div>
-    <div class="card">
-      <label class="lbl">Number of Questions</label>
-      <select id="numq">
-        <option value="3">3 — Quick</option>
-        <option value="5" selected>5 — Standard</option>
-        <option value="8">8 — Full Game</option>
-        <option value="10">10 — Marathon</option>
-      </select>
-      <div style="height:14px"></div>
-      <label class="lbl">Time Per Question</label>
-      <select id="timelim">
-        <option value="10">10 sec — Chaos 🔥</option>
-        <option value="15" selected>15 sec — Normal</option>
-        <option value="20">20 sec — Easy</option>
-        <option value="30">30 sec — Chill</option>
-      </select>
-    </div>
-    <button class="btn btn-o" id="genbtn" onclick="doGenerate()">✨ Generate Questions & Start</button>
-    <button class="btn btn-x" onclick="goScreen('s-home')">← Back</button>
+<div class="screen" id="s-setup">
+  <div class="logo" style="font-size:2rem;margin:20px 0 8px">🎮 Host Setup</div>
+  <div class="card">
+    <label class="lbl">Quiz Topic</label>
+    <input id="topic" value="General Knowledge" placeholder="Any topic...">
+    <div id="pills" style="margin-top:10px"></div>
   </div>
-
-  <div class="screen" id="s-lobby">
-    <p
-      style="color:var(--muted);margin-top:24px;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:.9rem">
-      Share this code!</p>
-    <div class="code" id="lcode">----</div>
-    <div class="card">
-      <p class="lbl" style="margin-bottom:10px">Players Joined</p>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;min-height:36px" id="lplayers"></div>
-    </div>
-    <button class="btn btn-g" id="startbtn" onclick="doStart()" disabled>🚀 Start Game (<span id="pcnt">0</span>
-      players)</button>
-    <button class="btn btn-x" onclick="doCancel()">✕ Cancel</button>
+  <div class="card">
+    <label class="lbl">Number of Questions</label>
+    <select id="numq">
+      <option value="3">3 — Quick</option>
+      <option value="5" selected>5 — Standard</option>
+      <option value="8">8 — Full Game</option>
+      <option value="10">10 — Marathon</option>
+    </select>
+    <div style="height:14px"></div>
+    <label class="lbl">Time Per Question</label>
+    <select id="timelim">
+      <option value="10">10 sec — Chaos 🔥</option>
+      <option value="15" selected>15 sec — Normal</option>
+      <option value="20">20 sec — Easy</option>
+      <option value="30">30 sec — Chill</option>
+    </select>
   </div>
+  <button class="btn btn-o" id="genbtn" onclick="doGenerate()">✨ Generate Questions & Start</button>
+  <button class="btn btn-x" onclick="goScreen('s-home')">← Back</button>
+</div>
 
-  <div class="screen" id="s-join">
-    <div class="logo" style="font-size:2rem;margin:20px 0 8px">🎯 Join Game</div>
-    <div class="card">
-      <label class="lbl">Session Code</label>
-      <input id="jcode"
-        style="font-family:'Boogaloo',cursive;font-size:2.2rem;letter-spacing:12px;text-align:center;text-transform:uppercase"
-        maxlength="4" placeholder="XXXX" oninput="this.value=this.value.toUpperCase()">
-    </div>
-    <button class="btn btn-o" onclick="doJoin()">🚀 Join!</button>
-    <button class="btn btn-x" onclick="goScreen('s-home')">← Back</button>
+<div class="screen" id="s-lobby">
+  <p style="color:var(--muted);margin-top:24px;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:.9rem">Share this code!</p>
+  <div class="code" id="lcode">----</div>
+  <div class="card">
+    <p class="lbl" style="margin-bottom:10px">Players Joined</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;min-height:36px" id="lplayers"></div>
   </div>
+  <button class="btn btn-g" id="startbtn" onclick="doStart()" disabled>🚀 Start Game (<span id="pcnt">0</span> players)</button>
+  <button class="btn btn-x" onclick="doCancel()">✕ Cancel</button>
+</div>
 
-  <div class="screen" id="s-wait">
-    <div class="logo" style="font-size:2rem;margin:28px 0 4px">⚡QuizBlast</div>
-    <div class="code" id="wcode">----</div>
-    <div class="card" style="text-align:center">
-      <p style="font-size:1.2rem;font-weight:800;margin-bottom:6px">You're in! 🎉</p>
-      <p style="color:var(--muted)">Playing as <span id="wname" style="color:var(--accent2);font-weight:800"></span></p>
-      <div class="hr"></div>
-      <div class="dots">
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-      </div>
-      <p style="color:var(--muted);font-size:.88rem;margin-top:6px">Waiting for host to start...</p>
-    </div>
+<div class="screen" id="s-join">
+  <div class="logo" style="font-size:2rem;margin:20px 0 8px">🎯 Join Game</div>
+  <div class="card">
+    <label class="lbl">Session Code</label>
+    <input id="jcode" style="font-family:'Boogaloo',cursive;font-size:2.2rem;letter-spacing:12px;text-align:center;text-transform:uppercase" maxlength="4" placeholder="XXXX" oninput="this.value=this.value.toUpperCase()">
+  </div>
+  <button class="btn btn-o" onclick="doJoin()">🚀 Join!</button>
+  <button class="btn btn-x" onclick="goScreen('s-home')">← Back</button>
+</div>
+
+<div class="screen" id="s-wait">
+  <div class="logo" style="font-size:2rem;margin:28px 0 4px">⚡QuizBlast</div>
+  <div class="code" id="wcode">----</div>
+  <div class="card" style="text-align:center">
+    <p style="font-size:1.2rem;font-weight:800;margin-bottom:6px">You're in! 🎉</p>
+    <p style="color:var(--muted)">Playing as <span id="wname" style="color:var(--accent2);font-weight:800"></span></p>
+    <div class="hr"></div>
+    <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <p style="color:var(--muted);font-size:.88rem;margin-top:6px">Waiting for host to start...</p>
+  </div>
+</div>
+
+<div class="screen" id="s-qh">
+  <div class="row" style="margin-top:16px">
+    <span id="qch" style="color:var(--muted);font-weight:700">Q 1/5</span>
+    <span class="badge">● LIVE</span>
+  </div>
+  <div class="twrap">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="45" fill="none" stroke-width="8" stroke="rgba(255,255,255,.1)"/>
+      <circle id="rh" cx="50" cy="50" r="45" fill="none" stroke-width="8" stroke="#06d6a0" stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="0" style="transition:stroke-dashoffset 1s linear,stroke .5s"/>
+    </svg>
+    <div class="tnum" id="th" style="color:#06d6a0">15</div>
+  </div>
+  <p class="qtext" id="qth">...</p>
+  <div class="agrid" id="agh" style="pointer-events:none;opacity:.75"></div>
+  <div class="card" style="margin-top:10px;text-align:center;padding:12px 20px">
+    <p class="lbl">ANSWERS RECEIVED</p>
+    <p id="arecv" style="font-family:'Boogaloo',cursive;font-size:2rem;color:var(--accent3)">0/0</p>
+    <div id="lscores" style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:6px"></div>
+  </div>
+</div>
+
+<div class="screen" id="s-qp">
+  <div class="row" style="margin-top:16px">
+    <span id="qcp" style="color:var(--muted);font-weight:700">Q 1/5</span>
+    <span class="badge">● LIVE</span>
+  </div>
+  <div class="twrap">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="45" fill="none" stroke-width="8" stroke="rgba(255,255,255,.1)"/>
+      <circle id="rp" cx="50" cy="50" r="45" fill="none" stroke-width="8" stroke="#06d6a0" stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="0" style="transition:stroke-dashoffset 1s linear,stroke .5s"/>
+    </svg>
+    <div class="tnum" id="tp" style="color:#06d6a0">15</div>
+  </div>
+  <p class="qtext" id="qtp">...</p>
+  <div class="agrid" id="agp"></div>
+  <div id="amsg" style="display:none;text-align:center;padding:16px;font-weight:800;font-size:1.2rem;color:var(--accent3);animation:popIn .3s ease"></div>
+  <div class="card" style="margin-top:10px;text-align:center;padding:10px 20px">
+    <p class="lbl">YOUR SCORE</p>
+    <p id="myscore" style="font-family:'Boogaloo',cursive;font-size:1.8rem;color:var(--accent2)">0pts</p>
+  </div>
+</div>
+
+<div class="screen" id="s-res">
+  <div style="font-family:'Boogaloo',cursive;font-size:1.8rem;color:var(--accent2);text-align:center;margin:20px 0 4px">⏰ Time's Up!</div>
+  <div class="funmsg" id="funmsg">🎯</div>
+  <div class="card">
+    <p class="lbl" style="margin-bottom:12px">Results</p>
+    <div id="rbars"></div>
+    <div class="hr"></div>
+    <p style="color:var(--muted);font-size:.83rem;margin-bottom:4px">✅ Correct Answer</p>
+    <p id="creveal" style="font-weight:800;font-size:1.1rem;color:var(--accent3)"></p>
+  </div>
+  <div class="card">
+    <p class="lbl" style="margin-bottom:10px">Leaderboard</p>
+    <div id="rlb"></div>
+  </div>
+  <button class="btn btn-o" id="nextbtn" onclick="doNext()" style="display:none">Next Question →</button>
+  <p id="waithost" style="color:var(--muted);font-size:.88rem;text-align:center;display:none">⏳ Waiting for host...</p>
+</div>
+
+<div class="screen" id="s-final">
+  <div class="logo">🏆 Final!</div>
+  <div class="funmsg" id="finalmsg">🎉</div>
+  <div class="card">
+    <p style="font-family:'Boogaloo',cursive;font-size:1.6rem;color:var(--accent2);text-align:center;margin-bottom:14px">Final Leaderboard</p>
+    <div id="flb"></div>
+  </div>
+  <button class="btn btn-o" onclick="doPlayAgain()">🔄 Play Again</button>
+  <button class="btn btn-x" onclick="goHome()">🏠 Home</button>
+  <p class="cr">© 2025 Hossam Genidy · All rights reserved</p>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── FIREBASE CONFIG ─────────────────────────────────────
+const firebaseConfig = {
+    apiKey: "AIzaSyB5nl805A155vn1thcosv5GfoUS5m_lRyw",
+    authDomain: "quizblast-78d17.firebaseapp.com",
+    projectId: "quizblast-78d17",
+    storageBucket: "quizblast-78d17.firebasestorage.app",
+    messagingSenderId: "700009971518",
+    appId: "1:700009971518:web:b17daa61e26b4e2542366f",
+    measurementId: "G-BS5KCF7QGQ"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const DB = {
+  set: (k, v) => db.ref(k).set(v),
+  getOnce: async (k) => {
+    const snap = await db.ref(k).get();
+    return snap.exists() ? snap.val() : null;
+  },
+  listen: (k, cb) => db.ref(k).on('value', snap => cb(snap.val()))
+};
+
+// ─── STATE ───────────────────────────────────────────────
+const G={name:'',isHost:false,code:'',questions:[],currentQ:0,timeLimit:15,numQ:5,myAnswer:null,scores:{},apiKey:'',timerInt:null,pollInt:null};
+const TOPICS=['General Knowledge','80s Music','Movies','Science','Sports','Food & Drink','Geography','History','Tech','Animals'];
+const LETTERS=['A','B','C','D'];
+const MEDALS=['🥇','🥈','🥉'];
+const FUNS=['🌟 Round Done!','💥 Boom!','🎪 Results Time!','👀 Who got it?','⚡ Check this!'];
+const WINS=['🏆 CHAMPION!','👑 The GOAT!','🌟 UNSTOPPABLE!','🔥 DESTROYER!'];
+const CIRC=2*Math.PI*45;
+const rand=a=>a[Math.floor(Math.random()*a.length)];
+const $=id=>document.getElementById(id);
+
+// ─── SCREEN ──────────────────────────────────────────────
+function goScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');}
+function goHome(){clearAll();goScreen('s-home');}
+
+// ─── TOAST ───────────────────────────────────────────────
+function toast(msg,ms=3000){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',ms);}
+
+// ─── TIMERS ──────────────────────────────────────────────
+function clearAll(){clearInterval(G.timerInt);if(G.code) db.ref('sessions/'+G.code).off();}
+
+// ─── SOUND ───────────────────────────────────────────────
+function snd(type){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const p=(f,s,d,t='sine',v=0.25)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=t;o.frequency.value=f;o.connect(g);g.connect(ctx.destination);g.gain.setValueAtTime(v,ctx.currentTime+s);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+s+d);o.start(ctx.currentTime+s);o.stop(ctx.currentTime+s+d+.01);};
+    if(type==='ok'){p(440,0,.1);p(660,.1,.2);}
+    else if(type==='no'){p(220,0,.15);p(160,.1,.2);}
+    else if(type==='tick'){p(800,0,.04,'sine',.08);}
+    else if(type==='go'){[261,329,392,523].forEach((f,i)=>p(f,i*.1,.15,'triangle'));}
+    else if(type==='win'){[523,659,784,1047].forEach((f,i)=>p(f,i*.12,.35,'sawtooth',.15));}
+    setTimeout(()=>ctx.close(),2000);
+  }catch(e){}
+}
+
+// ─── CONFETTI ────────────────────────────────────────────
+function confetti(){
+  const cols=['#ff6b35','#ffd23f','#06d6a0','#a855f7','#ff4d6d','#60efff'];
+  for(let i=0;i<60;i++){const el=document.createElement('div');const sz=6+Math.random()*8;Object.assign(el.style,{position:'fixed',width:sz+'px',height:sz+'px',left:Math.random()*100+'vw',top:'-20px',zIndex:9999,background:rand(cols),borderRadius:Math.random()>.5?'50%':'2px',animation:`fall ${1.5+Math.random()*2}s linear ${Math.random()}s forwards`,pointerEvents:'none'});document.body.appendChild(el);setTimeout(()=>el.remove(),4000);}
+}
+
+// ─── TIMER RING ──────────────────────────────────────────
+function updateRing(rid,nid,tLeft,tTotal){
+  const pct=Math.max(0,tLeft/tTotal);
+  const col=pct>.6?'#06d6a0':pct>.3?'#ffd23f':'#ff4d6d';
+  $(rid).style.strokeDashoffset=CIRC*(1-pct);$(rid).style.stroke=col;
+  $(nid).textContent=tLeft;$(nid).style.color=col;
+}
+
+// ─── LEADERBOARD ─────────────────────────────────────────
+function renderLB(elId,scores){
+  const sorted=Object.entries(scores || {}).sort((a,b)=>b[1]-a[1]);
+  $(elId).innerHTML=sorted.slice(0,8).map(([n,sc],i)=>`
+    <div class="lbi" style="animation-delay:${i*.07}s">
+      <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;width:36px;text-align:center;color:${i===0?'#ffd700':i===1?'#c0c0c0':i===2?'#cd7f32':'#8888aa'}">${MEDALS[i]||i+1}</div>
+      <div style="flex:1;font-weight:800">${n}${n===G.name?' (you)':''}</div>
+      <div style="font-family:'Boogaloo',cursive;font-size:1.3rem;color:#ffd23f">${sc}pts</div>
+    </div>`).join('')||'<p style="color:var(--muted)">No scores yet</p>';
+}
+
+// ─── TOPIC PILLS ─────────────────────────────────────────
+$('pills').innerHTML=TOPICS.map(t=>`<span class="pill${t==='General Knowledge'?' on':''}" onclick="pickTopic('${t}',this)">${t}</span>`).join('');
+function pickTopic(t,el){document.querySelectorAll('#pills .pill').forEach(p=>p.classList.remove('on'));el.classList.add('on');$('topic').value=t;}
+
+// ─── API KEY ─────────────────────────────────────────────
+function saveKey(){
+  const k=$('api-inp').value.trim();
+  if(!k){toast('⚠️ Paste your API key first');return;}
+  localStorage.setItem('qb_apikey',k);G.apiKey=k;goScreen('s-setup');
+}
+
+// ─── HOME ────────────────────────────────────────────────
+function goHost(){
+  const n=$('home-name').value.trim();
+  if(!n){toast('⚠️ Enter your name first!');return;}
+  G.name=n;G.isHost=true;
+  G.apiKey=localStorage.getItem('qb_apikey')||'';
+  if(!G.apiKey){$('api-inp').value='';goScreen('s-api');}
+  else goScreen('s-setup');
+}
+function goJoin(){
+  const n=$('home-name').value.trim();
+  if(!n){toast('⚠️ Enter your name first!');return;}
+  G.name=n;G.isHost=false;goScreen('s-join');
+}
+
+// ─── GENERATE ────────────────────────────────────────────
+async function doGenerate(){
+  const btn=$('genbtn');btn.textContent='✨ Generating...';btn.disabled=true;
+  try{
+    const topic=$('topic').value.trim()||'General Knowledge';
+    const numQ=parseInt($('numq').value);
+    const tl=parseInt($('timelim').value);
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':G.apiKey,
+        'anthropic-version':'2023-06-01',
+        'dangerouslyAllowBrowser': 'true'
+      },
+      body:JSON.stringify({
+        model:'claude-3-5-sonnet-20240620',
+        max_tokens:2000,
+        messages:[{role:'user',content:`Generate ${numQ} fun quiz questions about: "${topic}". Return ONLY a raw JSON array, no markdown:\n[{"question":"...?","options":["A","B","C","D"],"correct":0}]\n"correct"=0-based index. Short options. Mix difficulty.`}]})
+    });
+    if(!res.ok){const e=await res.text();throw new Error('API '+res.status+': '+e.slice(0,100));}
+    const data=await res.json();
+    
+    const rawContent = data.content.map(c => c.text || '').join('');
+    const jsonMatch = rawContent.match(/\[[\s\S]*\]/);
+    if(!jsonMatch) throw new Error("Format error");
+    const qs = JSON.parse(jsonMatch[0]);
+
+    const code=Array.from({length:4},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random()*23)]).join('');
+    G.code=code;G.questions=qs;G.numQ=numQ;G.timeLimit=tl;G.currentQ=0;G.scores={[G.name]:0};
+    
+    await DB.set('sessions/'+code, {
+        host: G.name,
+        phase: 'lobby',
+        questions: qs,
+        currentQ: 0,
+        timeLimit: tl,
+        totalQ: numQ,
+        players: {[G.name]: 0},
+        createdAt: Date.now()
+    });
+
+    $('lcode').textContent=code;goScreen('s-lobby');
+    DB.listen('sessions/'+code, syncGame);
+  }catch(e){toast('❌ '+e.message,5000);console.error(e);}
+  btn.textContent='✨ Generate Questions & Start';btn.disabled=false;
+}
+
+// ─── SYNC GAME ───────────────────────────────────────────
+function syncGame(s) {
+    if(!s) return;
+    G.scores = s.scores || s.players;
+    
+    if(s.phase === 'lobby') {
+        const ps = Object.keys(s.players || {});
+        $('lplayers').innerHTML = ps.map(p => `<span class="chip">${p===s.host?'👑 '+p:'🎮 '+p}</span>`).join('');
+        $('pcnt').textContent = ps.length;
+        $('startbtn').disabled = ps.length < 1;
+    } 
+    else if(s.phase === 'question') {
+        if(G.currentQ !== s.currentQ || !G.inGame) {
+            G.inGame = true; G.currentQ = s.currentQ; G.myAnswer = null;
+            showQ(s.currentQ, G.isHost);
+        }
+    }
+    else if(s.phase === 'results') {
+        showResults(s.lastTally, G.isHost);
+    }
+    else if(s.phase === 'final') {
+        showFinalScreen();
+    }
+}
+
+function doCancel(){clearAll();goScreen('s-home');}
+
+// ─── START GAME ──────────────────────────────────────────
+async function doStart(){
+  const s = await DB.getOnce('sessions/'+G.code);
+  const init={}; Object.keys(s.players).forEach(p=>init[p]=0);
+  s.phase='question'; s.currentQ=0; s.roundAnswers={}; s.scores=init;
+  await DB.set('sessions/'+G.code, s);
+  snd('go');
+}
+
+// ─── SHOW QUESTION ───────────────────────────────────────
+function showQ(idx, isHost){
+  const q=G.questions[idx];
+  $(isHost?'qch':'qcp').textContent='Q '+(idx+1)+'/'+G.numQ;
+  $(isHost?'qth':'qtp').textContent=q.question;
+  $(isHost?'agh':'agp').innerHTML=q.options.map((o,i)=>
+    `<button class="abtn" data-c="${i}" ${isHost?'disabled':''} onclick="${isHost?'':'pick('+i+')'}">${LETTERS[i]}. ${o}</button>`
+  ).join('');
+  if(!isHost){$('amsg').style.display='none';$('agp').style.display='grid';$('myscore').textContent=(G.scores[G.name]||0)+'pts';}
+  goScreen(isHost?'s-qh':'s-qp');
+  startTimer(isHost);
+}
+
+// ─── TIMER ───────────────────────────────────────────────
+function startTimer(isHost){
+  clearInterval(G.timerInt);
+  let t=G.timeLimit;
+  updateRing(isHost?'rh':'rp', isHost?'th':'tp', t, G.timeLimit);
+  G.timerInt=setInterval(async ()=>{
+    t--; updateRing(isHost?'rh':'rp', isHost?'th':'tp', t, G.timeLimit);
+    if(t<=5&&t>0)snd('tick');
+    if(isHost){
+        const s = await DB.getOnce('sessions/'+G.code);
+        const ra = s?.roundAnswers || {};
+        $('arecv').textContent = Object.keys(ra).length + '/' + Object.keys(s.players).length;
+    }
+    if(t<=0){clearInterval(G.timerInt); if(isHost)timeUp();}
+  },1000);
+}
+
+// ─── PLAYER ANSWER ───────────────────────────────────────
+async function pick(idx){
+  if(G.myAnswer!==null)return;
+  G.myAnswer=idx; const correct=G.questions[G.currentQ].correct;
+  snd(idx===correct?'ok':'no');
+  document.querySelectorAll('#agp .abtn').forEach((b,i)=>{if(i===idx)b.classList.add('sel');else b.style.opacity='.4';});
+  $('agp').style.display='none'; $('amsg').style.display='block';
+  $('amsg').textContent=idx===correct?'🎯 Correct! Locked in!':'😅 Locked in! Fingers crossed...';
+  
+  await db.ref('sessions/'+G.code+'/roundAnswers/'+G.name.replace('.','_')).set({
+    answer: idx,
+    timeLeft: parseInt($('tp').textContent)||0
+  });
+}
+
+// ─── HOST TIME UP ────────────────────────────────────────
+async function timeUp(){
+  const s = await DB.getOnce('sessions/'+G.code);
+  const q = G.questions[G.currentQ]; const ci = q.correct;
+  const ra = s.roundAnswers || {}; const tally = [0,0,0,0]; const ns = {...G.scores};
+  
+  Object.entries(ra).forEach(([pl,d])=>{
+      tally[d.answer]++;
+      if(d.answer===ci) ns[pl] = (ns[pl]||0) + 100 + Math.floor((d.timeLeft/G.timeLimit)*100);
+  });
+  
+  s.scores = ns; s.lastTally = tally; s.phase = 'results';
+  await DB.set('sessions/'+G.code, s);
+}
+
+// ─── RESULTS ─────────────────────────────────────────────
+function showResults(tally, isHost){
+  const q=G.questions[G.currentQ]; const ci=q.correct;
+  const total=tally.reduce((a,b)=>a+b,0)||1;
+  const bc=['#e63946','#2196f3','#ff9800','#4caf50'];
+  $('funmsg').textContent=tally[ci]===0?'😂 Nobody got it!':rand(FUNS);
+  $('rbars').innerHTML=q.options.map((o,i)=>{
+    const pct=Math.round(tally[i]/total*100);
+    return `<div class="barwrap"><div class="barlbl"><span>${i===ci?'✅':'❌'} ${LETTERS[i]}. ${o}</span><span>${pct}%</span></div><div class="barbg"><div class="barfill" style="background:${i===ci?'#06d6a0':bc[i]+'99'}" data-w="${pct}"></div></div></div>`;
+  }).join('');
+  $('creveal').textContent=q.options[ci];
+  renderLB('rlb', G.scores);
+  $('nextbtn').style.display=isHost?'block':'none';
+  $('nextbtn').textContent=G.currentQ >= G.numQ-1 ? '🏁 Final Results' : 'Next Question →';
+  $('waithost').style.display=isHost?'none':'block';
+  goScreen('s-res');
+  setTimeout(()=>document.querySelectorAll('.barfill').forEach(b=>b.style.width=b.dataset.w+'%'),60);
+}
+
+// ─── NEXT / FINAL ────────────────────────────────────────
+async function doNext(){
+  const isLast = G.currentQ >= G.numQ-1;
+  const s = await DB.getOnce('sessions/'+G.code);
+  if(isLast) { s.phase = 'final'; }
+  else { s.phase = 'question'; s.currentQ++; s.roundAnswers = {}; }
+  await DB.set('sessions/'+G.code, s);
+}
+
+function showFinalScreen(){
+  const sorted=Object.entries(G.scores).sort((a,b)=>b[1]-a[1]);
+  $('finalmsg').textContent=sorted[0]?.[0]===G.name?'🏆 You won! 🎉' : '🏆 '+sorted[0]?.[0]+' wins!';
+  renderLB('flb',G.scores); goScreen('s-final'); confetti(); snd('win');
+}
+
+// ─── JOIN ────────────────────────────────────────────────
+async function doJoin(){
+  const code=$('jcode').value.trim().toUpperCase();
+  const s = await DB.getOnce('sessions/'+code);
+  if(!s) { toast('❌ Session not found!'); return; }
+  G.code = code; G.numQ = s.totalQ; G.questions = s.questions;
+  await db.ref('sessions/'+code+'/players/'+G.name.replace('.','_')).set(0);
+  $('wcode').textContent=code; $('wname').textContent=G.name;
+  goScreen('s-wait');
+  DB.listen('sessions/'+code, syncGame);
+}
+
+function doPlayAgain(){ location.reload(); }
+
+</script>
+</body>
+</html>
